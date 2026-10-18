@@ -1,0 +1,475 @@
+/* =========================================================
+   Campus Carpool - style.css  (HTML + CSS only, no JavaScript)
+   Sections: 1 Colors  2 Base  3 Layout  4 Tabs  5 Cards
+             6 Buttons & toggles  7 Seat counters  8 Tracker
+             9 History  10 Form  11 Small screens
+   ========================================================= */
+
+/* ---------- 1. COLORS (change these to restyle the whole site) ---------- */
+:root {
+  --bg: #f1f4f2;
+  --surface: #ffffff;
+  --surface2: #e8eeeb;
+  --text: #13201c;
+  --muted: #566862;
+  --line: #d1dbd6;
+  --accent: #f0b800;
+  --accent-text: #1a1400;
+  --ok: #1d8556;
+  --ok-bg: #dcf1e6;
+  --warn: #a35f00;
+  --warn-bg: #faecd0;
+  --bad: #b83838;
+  --bad-bg: #f8dcdc;
+}
+
+/* Dark mode follows the phone / computer setting */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1412;
+    --surface: #141d1a;
+    --surface2: #1b2824;
+    --text: #e5eee9;
+    --muted: #8da29a;
+    --line: #263631;
+    --accent: #f2c230;
+    --ok: #4cc790;
+    --ok-bg: #12301f;
+    --warn: #f0a53a;
+    --warn-bg: #33250d;
+    --bad: #ef7a7a;
+    --bad-bg: #371818;
+  }
+}
+
+/* ---------- 2. BASE ---------- */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h1, h2 { margin: 0; line-height: 1.15; }
+h2 { font-size: 1.1rem; }
+p { margin: 0; }
+.sub { color: var(--muted); font-size: 0.85rem; }
+
+/* Hides the radio/checkbox but keeps it working (do NOT use display:none,
+   because CSS counters skip elements that are display:none) */
+.hidden-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- 3. LAYOUT ---------- */
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand small { display: block; color: var(--muted); font-size: 0.78rem; }
+.logo {
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 800;
+}
+.who { color: var(--muted); font-size: 0.85rem; }
+.chip {
+  margin-left: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 26px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.hero h1 { font-size: clamp(2rem, 6vw, 3rem); }
+.hero p { max-width: 62ch; color: var(--muted); }
+
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.tag-orange { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.tag-green  { background: var(--ok-bg);   color: var(--ok);   border-color: transparent; }
+
+/* The yellow dashed "road line" */
+.road {
+  height: 4px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(90deg, var(--accent) 0 22px, transparent 22px 40px);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+}
+.side { display: flex; flex-direction: column; gap: 16px; }
+
+.panel {
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.panel + .panel { margin-top: 16px; }
+.side .panel + .panel { margin-top: 0; }
+
+/* ---------- 4. TABS (radio buttons + :checked) ---------- */
+.app { position: relative; }
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+.tabs label {
+  flex: none;
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* Highlight the active tab */
+#tab-find:checked ~ .tabs label[for="tab-find"],
+#tab-post:checked ~ .tabs label[for="tab-post"],
+#tab-req:checked  ~ .tabs label[for="tab-req"],
+#tab-hist:checked ~ .tabs label[for="tab-hist"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* Keyboard focus ring for tabs */
+#tab-find:focus-visible ~ .tabs label[for="tab-find"],
+#tab-post:focus-visible ~ .tabs label[for="tab-post"],
+#tab-req:focus-visible  ~ .tabs label[for="tab-req"],
+#tab-hist:focus-visible ~ .tabs label[for="tab-hist"] {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.views { position: relative; }
+
+/* Every view starts hidden (but NOT display:none, so counters keep working) */
+.view {
+  position: absolute;
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+/* Show only the view whose tab is checked */
+#tab-find:checked ~ .views #view-find,
+#tab-post:checked ~ .views #view-post,
+#tab-req:checked  ~ .views #view-req,
+#tab-hist:checked ~ .views #view-hist {
+  position: static;
+  height: auto;
+  overflow: visible;
+  visibility: visible;
+}
+
+/* ---------- 5. RIDE CARDS ---------- */
+.ride {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.ride.mine { border-color: var(--accent); }
+
+.ride-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 14px;
+}
+.route { font-size: 1.05rem; font-weight: 700; }
+.arrow { color: var(--warn); }
+.meta { color: var(--muted); font-size: 0.85rem; }
+.fare { font-family: Consolas, "Courier New", monospace; font-weight: 600; }
+.seatline { font-size: 0.9rem; }
+.seatline b { font-family: Consolas, "Courier New", monospace; font-size: 1.05rem; }
+
+.empty {
+  margin-top: 14px;
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+}
+
+.reqrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border-radius: 10px;
+}
+.choice { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.outcomes { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.outcomes li { padding: 9px 12px; background: var(--surface2); border-radius: 10px; font-size: 0.88rem; }
+
+/* ---------- 6. BUTTONS, PILLS AND TOGGLES ---------- */
+.btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--muted); }
+.btn-main { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.btn-ok   { background: var(--ok); border-color: var(--ok); color: #ffffff; }
+.btn-bad  { background: transparent; border-color: var(--bad); color: var(--bad); }
+
+.pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.p-wait { background: var(--warn-bg); color: var(--warn); }
+.p-ok   { background: var(--ok-bg);   color: var(--ok); }
+.p-no   { background: var(--bad-bg);  color: var(--bad); }
+.p-role { background: var(--surface2); color: var(--muted); }
+
+/* Approve / Decline radios: show only the matching status pill */
+.choice .p-ok, .choice .p-no { display: none; }
+.ok-in:checked ~ .p-wait { display: none; }
+.ok-in:checked ~ .p-ok   { display: inline-block; }
+.no-in:checked ~ .p-wait { display: none; }
+.no-in:checked ~ .p-no   { display: inline-block; }
+
+/* Checkbox toggle buttons (Request seat / Mark completed) */
+.toggle + label .on { display: none; }
+.toggle:checked + label .off { display: none; }
+.toggle:checked + label .on { display: inline; }
+
+/* "Seat confirmed" shows only when requested AND the driver approved */
+.status-r2, .status-r3 { display: none; }
+.page:has(#rq2:checked):has(#my2-ok:checked) .status-r2 { display: inline-block; }
+.page:has(#rq3:checked):has(#my3-ok:checked) .status-r3 { display: inline-block; }
+
+/* "Your seat requests": entries appear only after you request a seat */
+.my-entry { display: none; }
+.page:has(#rq2:checked) .my-entry-2 { display: flex; }
+.page:has(#rq3:checked) .my-entry-3 { display: flex; }
+.page:has(.rq:checked) .none-msg { display: none; }
+
+/* After "Mark trip completed" the ride leaves Find rides */
+.page:has(#done1:checked) .ride-r1 { display: none; }
+
+/* "Ride posted" message (appears when the form is submitted) */
+.posted {
+  display: none;
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-radius: 10px;
+  font-weight: 600;
+}
+.posted:target { display: block; }
+
+/* ---------- 7. SEAT COUNTERS (CSS counters do the maths) ----------
+   Each ride starts with its total seats. Every approved request
+   subtracts its seats from the counter. */
+.views { counter-reset: left1 3 left2 2 left3 3; }
+
+.q1-ok:checked  { counter-increment: left1 -1; }   /* Neha: 1 seat  */
+.q2-ok:checked  { counter-increment: left1 -2; }   /* Dev:  2 seats */
+.my2-ok:checked { counter-increment: left2 -1; }   /* you on Ananya's ride */
+.my3-ok:checked { counter-increment: left3 -1; }   /* you on Karan's ride  */
+
+.left1::after { content: counter(left1); }
+.left2::after { content: counter(left2); }
+.left3::after { content: counter(left3); }
+
+/* ---------- 8. MUST-HAVE FEATURES TRACKER ---------- */
+.tracker { counter-reset: done; }
+
+.segs { display: flex; gap: 4px; margin: 12px 0; }
+.segs i { flex: 1; height: 6px; border-radius: 3px; background: var(--surface2); }
+.tracker:has(#f1:checked) .segs i:nth-child(1),
+.tracker:has(#f2:checked) .segs i:nth-child(2),
+.tracker:has(#f3:checked) .segs i:nth-child(3),
+.tracker:has(#f4:checked) .segs i:nth-child(4) { background: var(--accent); }
+
+.feats { display: flex; flex-direction: column; gap: 8px; }
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.feat input:checked { counter-increment: done; }
+
+.box {
+  flex: none;
+  width: 18px; height: 18px;
+  border: 2px solid var(--muted);
+  border-radius: 5px;
+}
+.feat input:checked + .box { background: var(--ok); border-color: var(--ok); position: relative; }
+.feat input:checked + .box::after {
+  content: "";
+  position: absolute;
+  left: 4px; top: 0;
+  width: 4px; height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.feat input:focus-visible + .box { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.count { margin: 12px 0 6px; font-size: 0.9rem; }
+.done-count::after { content: counter(done) " / 4"; font-family: Consolas, "Courier New", monospace; }
+
+/* ---------- 9. HISTORY ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.chips label {
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+#h-all:checked   ~ .chips label[for="h-all"],
+#h-drive:checked ~ .chips label[for="h-drive"],
+#h-ride:checked  ~ .chips label[for="h-ride"] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+/* ---------- FOOTER ---------- */
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: right;
+  gap: 4px;
+  margin-top: 24px;
+  padding: 28px 16px;
+  text-align: right;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.site-footer p { color: var(--muted); }
+.site-footer p span { color: var(--text); font-weight: 700; }
+.site-footer small { color: var(--muted); }
+
+/* The new trip appears after you mark a ride completed */
+.hist-new { display: none; }
+.page:has(#done1:checked) .hist-new { display: flex; }
+
+/* Filters hide the other kind of trip (written AFTER the rule above so they win) */
+#h-drive:checked ~ .hlist .as-rider  { display: none; }
+#h-ride:checked  ~ .hlist .as-driver { display: none; }
+
+/* Count the trips that are visible */
+#view-hist { counter-reset: trips; }
+.hitem { counter-increment: trips; }
+.trips::after { content: counter(trips); }
+#view-hist .seatline { margin-top: 14px; }
+
+/* ---------- 10. FORM ---------- */
+.form { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field label { color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 9px 11px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--text);
+  font: inherit;
+}
+
+/* Visible keyboard focus everywhere */
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible,
+.btn:focus-visible,
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hidden-input:focus-visible + label { outline: 2px solid var(--text); outline-offset: 2px; }
+
+/* ---------- 11. SMALL SCREENS ---------- */
+@media (max-width: 860px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .side { order: -1; }          /* tracker moves above the tabs */
+}
+@media (max-width: 520px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .hero { padding: 18px; }
+}
